@@ -2,15 +2,9 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
-        />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
         <title>Ultraviolet | Sophisticated Web Proxy</title>
-        <meta
-            name="description"
-            content="Ultraviolet is a highly sophisticated proxy used for evading internet censorship."
-        />
+        <meta name="description" content="Ultraviolet is a highly sophisticated proxy used for evading internet censorship." />
         
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#434c5e" />
         <link rel="shortcut icon" content="public/favicon.ico" />
@@ -19,7 +13,6 @@
         
         <script src="uv/uv.bundle.js"></script>
         <script src="uv/uv.config.js"></script>
-
         <script src="baremux/index.js"></script>
     </head>
 
@@ -34,11 +27,7 @@
         </div>
 
         <form id="uv-form" class="flex-center">
-            <input
-                id="uv-search-engine"
-                value="https://www.google.com/search?q=%s"
-                type="hidden"
-            />
+            <input id="uv-search-engine" value="https://www.google.com/search?q=%s" type="hidden" />
             <input id="uv-address" type="text" placeholder="Search the web freely" />
         </form>
 
@@ -60,8 +49,32 @@
 
         <iframe style="display: none" id="uv-frame"></iframe>
 
-        <script src="public/register-sw.js"></script>
-        <script src="public/search.js"></script>
-        <script src="public/index.js"></script>
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    // Points to the uv.sw.js you moved to the root folder
+                    navigator.serviceWorker.register('./uv.sw.js', {
+                        scope: __uv$config.prefix
+                    });
+                });
+            }
+
+            const form = document.getElementById('uv-form');
+            const address = document.getElementById('uv-address');
+            const searchEngine = document.getElementById('uv-search-engine');
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                
+                let url = address.value.trim();
+                if (!url.startsWith('http')) {
+                    // If not a URL, search it on Google
+                    url = searchEngine.value.replace('%s', encodeURIComponent(url));
+                }
+
+                // Redirects using the Ultraviolet prefix and encoding
+                window.location.href = __uv$config.prefix + __uv$config.encodeUrl(url);
+            });
+        </script>
     </body>
 </html>
